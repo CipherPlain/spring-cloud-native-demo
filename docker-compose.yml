@@ -1,0 +1,64 @@
+services:
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8761/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-server
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8888/user-service/default"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    restart: unless-stopped
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_DEFAULT_ZONE: http://eureka-server:8761/eureka/
+    ports:
+      - "8081:8081"
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    restart: unless-stopped
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_DEFAULT_ZONE: http://eureka-server:8761/eureka/
+    ports:
+      - "8082:8082"
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    restart: unless-stopped
+    environment:
+      EUREKA_DEFAULT_ZONE: http://eureka-server:8761/eureka/
+    ports:
+      - "8000:8000"
+    depends_on:
+      eureka-server:
+        condition: service_healthy

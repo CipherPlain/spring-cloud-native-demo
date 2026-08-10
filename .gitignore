@@ -1,0 +1,45 @@
+# ===== Maven =====
+target/
+*.jar
+*.war
+*.ear
+!.mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
+
+# ===== IDE / 编辑器 =====
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+*.class
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===== 日志 / 临时文件 =====
+*.log
+logs/
+tmp/
+*.tmp
+*.swp
+*~
+
+# ===== 本地环境配置（勿提交） =====
+.env
+.local
+application-local.yml
+
+# ===== Docker =====
+docker-compose.override.yml
+
+# ===== 其他 =====
+*.pid
+hs_err_pid*
+replay_pid*
