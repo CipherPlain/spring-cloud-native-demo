@@ -85,6 +85,14 @@ mvn clean package -DskipTests
 ### 2.3 启动
 ```bash
 docker compose up -d --build
+# 命令解释：
+#   docker compose  : 按当前目录的 docker-compose.yml 编排
+#   up              : 创建并启动所有容器（不存在则创建，配置变了才重建）
+#   -d              : --detach，后台运行，不占用终端、不滚动日志
+#   --build         : 启动前先按每模块的 Dockerfile 重新构建镜像
+# 一条命令完成「构建 5 个镜像 → 拉基础镜像 → 按顺序启动全部容器 → 返回终端」
+docker compose up -d                     # 只启动、不重新构建（Dockerfile 没改时更快）
+docker compose down                      # 反操作：停止并删除容器
 ```
 
 > 一条命令启动全部 5 个服务。顺序由 `depends_on` + **健康检查**保证：
@@ -124,9 +132,14 @@ docker compose down
 按依赖顺序，每个命令**新开一个终端**：
 
 ```bash
+# 命令解释：
+#   mvn                 : Maven 构建工具
+#   spring-boot:run     : Spring Boot 插件的 run 目标，编译并直接启动应用（不打包）
+#   -pl                 : --projects，只操作指定模块（需在根 pom.xml 的 <modules> 里声明）
+# 在聚合工程的根目录执行，等于「只启动该模块这一个服务」
 mvn spring-boot:run -pl eureka-server   # 先注册中心
 mvn spring-boot:run -pl config-server   # 再配置中心
-mvn spring-boot:run -pl user-service
+mvn spring-boot:run -pl user-service    # 相当于cd 进 user-service 然后 mvn spring-boot:run
 mvn spring-boot:run -pl order-service
 mvn spring-boot:run -pl gateway
 ```
